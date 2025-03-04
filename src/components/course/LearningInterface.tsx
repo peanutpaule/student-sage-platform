@@ -8,9 +8,11 @@ import QuizContent from './QuizContent';
 import CourseOutline from './CourseOutline';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, BookOpen, Trophy } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { toast } from '@/components/ui/use-toast';
+import ResultsView from './ResultsView';
+import ConceptMap from './ConceptMap';
 
 const LearningInterface: React.FC = () => {
   const { courseId = '', lessonId = '' } = useParams<{ courseId: string, lessonId: string }>();
@@ -19,6 +21,8 @@ const LearningInterface: React.FC = () => {
   const [lesson, setLesson] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [showResults, setShowResults] = useState(false);
+  const [showConceptMap, setShowConceptMap] = useState(false);
   
   useEffect(() => {
     if (courseId) {
@@ -69,12 +73,8 @@ const LearningInterface: React.FC = () => {
       if (nextLessonId) {
         navigate(`/courses/${courseId}/learn/${nextLessonId}`);
       } else {
-        // Course completed
-        toast({
-          title: "Congratulations!",
-          description: "You've completed this course.",
-        });
-        navigate(`/courses/${courseId}`);
+        // Course completed - show results view
+        setShowResults(true);
       }
     }
   };
@@ -85,13 +85,14 @@ const LearningInterface: React.FC = () => {
     if (nextLessonId) {
       navigate(`/courses/${courseId}/learn/${nextLessonId}`);
     } else {
-      // Course completed
-      toast({
-        title: "Congratulations!",
-        description: "You've completed this course.",
-      });
-      navigate(`/courses/${courseId}`);
+      // Course completed - show results view
+      setShowResults(true);
     }
+  };
+
+  const handleContinueLearning = () => {
+    setShowResults(false);
+    navigate(`/courses/${courseId}`);
   };
   
   if (loading) {
@@ -120,6 +121,16 @@ const LearningInterface: React.FC = () => {
       </div>
     );
   }
+
+  // Show results view if the course is completed and we want to show results
+  if (showResults) {
+    return (
+      <ResultsView 
+        courseId={courseId} 
+        onContinue={handleContinueLearning} 
+      />
+    );
+  }
   
   return (
     <div className="learning-interface min-h-screen">
@@ -139,20 +150,32 @@ const LearningInterface: React.FC = () => {
               <h1 className="text-lg font-medium truncate">{course.title}</h1>
             </div>
             
-            <div className="lg:hidden">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Menu size={18} />
-                    <span className="ml-2">Outline</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[90%] sm:w-[440px]">
-                  <div className="py-6">
-                    <CourseOutline course={course} activeLessonId={lessonId} />
-                  </div>
-                </SheetContent>
-              </Sheet>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowConceptMap(!showConceptMap)}
+                className="mr-2"
+              >
+                {showConceptMap ? <BookOpen size={16} /> : <Trophy size={16} />}
+                <span className="ml-2">{showConceptMap ? "Return to Content" : "View Concept Map"}</span>
+              </Button>
+              
+              <div className="lg:hidden">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Menu size={18} />
+                      <span className="ml-2">Outline</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[90%] sm:w-[440px]">
+                    <div className="py-6">
+                      <CourseOutline course={course} activeLessonId={lessonId} />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
             </div>
           </div>
           
@@ -167,16 +190,18 @@ const LearningInterface: React.FC = () => {
         </div>
       </div>
       
-      {/* Main content */}
+      {/* Main content - Split Screen */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Course content */}
           <div className="w-full lg:w-2/3">
-            {lesson.type === 'content' ? (
+            {showConceptMap ? (
+              <ConceptMap courseId={courseId} />
+            ) : lesson.type === 'content' ? (
               <>
                 <LessonContent lesson={lesson} courseId={courseId} />
                 <div className="mt-12 flex justify-end">
-                  <Button onClick={handleComplete}>
+                  <Button onClick={handleComplete} className="hover-scale">
                     Mark as Completed
                     <ChevronRight size={16} className="ml-2" />
                   </Button>
