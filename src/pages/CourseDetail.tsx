@@ -4,8 +4,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AnimatedGradient from '@/components/AnimatedGradient';
-import { Clock, Calendar, Award, ChevronLeft } from 'lucide-react';
+import { Clock, Calendar, Award, ChevronLeft, PlayCircle, CheckCircle } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { getFirstLessonId } from '@/lib/courseContent';
+import { getUserProgress } from '@/lib/progressStorage';
 
 // Import the course data for now - in a real app this would come from an API
 import { coursesData } from '@/lib/data';
@@ -15,6 +18,7 @@ const CourseDetail = () => {
   const navigate = useNavigate();
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     // Scroll to top on page load
@@ -26,6 +30,10 @@ const CourseDetail = () => {
     if (foundCourse) {
       setCourse(foundCourse);
       setLoading(false);
+      
+      // Get user progress
+      const userProgress = getUserProgress(courseId || '');
+      setProgress(userProgress.completedLessons.length * 10); // Simple progress calculation
     } else {
       // If no course is found, show an error toast and redirect back to courses
       toast({
@@ -40,6 +48,22 @@ const CourseDetail = () => {
       }, 2000);
     }
   }, [courseId, navigate]);
+
+  const handleStartLearning = () => {
+    if (courseId) {
+      const firstLessonId = getFirstLessonId(courseId);
+      
+      if (firstLessonId) {
+        navigate(`/courses/${courseId}/learn/${firstLessonId}`);
+      } else {
+        toast({
+          title: "Course content not available",
+          description: "The course content is not available at the moment. Please try again later.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   if (loading && !course) {
     return (
@@ -174,7 +198,31 @@ const CourseDetail = () => {
                   </div>
                 </div>
                 
-                <button className="w-full btn-primary mb-4">Enroll Now</button>
+                {progress > 0 ? (
+                  <div className="mb-6">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-ai-dark-gray">Your progress</span>
+                      <span className="font-medium">{progress}% complete</span>
+                    </div>
+                    <Progress value={progress} className="h-2 mb-4" />
+                    <button 
+                      onClick={handleStartLearning}
+                      className="w-full btn-primary flex justify-center items-center"
+                    >
+                      <PlayCircle size={18} className="mr-2" />
+                      Continue Learning
+                    </button>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={handleStartLearning}
+                    className="w-full btn-primary flex justify-center items-center mb-4"
+                  >
+                    <PlayCircle size={18} className="mr-2" />
+                    Start Learning
+                  </button>
+                )}
+                
                 <button className="w-full btn-outline">Save for Later</button>
                 
                 <div className="mt-8 pt-6 border-t border-gray-100">
