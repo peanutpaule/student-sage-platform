@@ -1,6 +1,5 @@
-
 import React, { useEffect, useRef } from 'react';
-import { ArrowRight, Book, LightBulb, Monitor } from 'lucide-react';
+import { ArrowRight, Book, Lightbulb, Monitor } from 'lucide-react';
 
 const Hero: React.FC = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -101,7 +100,7 @@ const Hero: React.FC = () => {
             <div className="absolute top-[30%] right-[5%] glass-card p-4 shadow-lg w-64 animate-float" style={{ animationDelay: '0.5s' }}>
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-ai-blue/20 flex items-center justify-center text-ai-blue mr-3">
-                  <LightBulb size={20} />
+                  <Lightbulb size={20} />
                 </div>
                 <div>
                   <h3 className="font-medium text-ai-black">AI Concepts</h3>

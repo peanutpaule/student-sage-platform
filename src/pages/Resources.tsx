@@ -1,16 +1,15 @@
-
 import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AnimatedGradient from '@/components/AnimatedGradient';
-import { ArrowRight, Book, BookOpen, FileText, GraduationCap, LightBulb, Monitor } from 'lucide-react';
+import { ArrowRight, Book, BookOpen, FileText, GraduationCap, Lightbulb, Monitor } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const resources = [
   {
     title: "Getting Started with AI",
     description: "An introductory guide to artificial intelligence for beginners.",
-    icon: <LightBulb className="h-6 w-6 text-ai-blue" />,
+    icon: <Lightbulb className="h-6 w-6 text-ai-blue" />,
     link: "#",
     category: "Guide"
   },

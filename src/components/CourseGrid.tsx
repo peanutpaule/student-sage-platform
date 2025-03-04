@@ -1,6 +1,6 @@
-
 import React, { useEffect, useRef } from 'react';
 import CourseCard from './CourseCard';
+import { ArrowRight } from 'lucide-react';
 
 // Sample course data
 const coursesData = [
